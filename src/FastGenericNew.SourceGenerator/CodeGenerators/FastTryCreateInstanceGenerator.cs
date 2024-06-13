@@ -9,6 +9,7 @@ public class FastTryCreateInstanceGenerator : CodeGenerator<FastTryCreateInstanc
     public override CodeGenerationResult Generate(in GeneratorOptions options)
     {
         if (!options.GenerateTryCreateInstance) return CodeGenerationResult.Empty;
+
         CodeBuilder builder = new(20480, in options);
         builder.WriteFileHeader();
         builder.StartNamespace();
@@ -18,53 +19,38 @@ public class FastTryCreateInstanceGenerator : CodeGenerator<FastTryCreateInstanc
 
         builder.StartBlock(1);
 
+        // Generate TryCreateInstance for default T
         builder.AppendLine($@"
-	    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-	    public static bool TryCreateInstance<
-#if NET5_0_OR_GREATER
-{options.DynamicallyAccessedMembers(0)}
-#endif
-T>(out T result)
-	    {{
-            if({options.GlobalNSDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.IsValidName})
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryCreateInstance<T>(out T result)
+        {{
+            if ({options.GlobalNsDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.IsValidName})
             {{
-#if NETFRAMEWORK
-                result = {options.GlobalNSDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.CompiledDelegateName}();
-#else
-		        result = typeof(T).IsValueType
+                result = typeof(T).IsValueType
                     ? System.Activator.CreateInstance<T>()
-                    : {options.GlobalNSDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.CompiledDelegateName}();
-#endif
+                    : {options.GlobalNsDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.CompiledDelegateName}();
                 return true;
             }}
-	        //Unsafe.SkipInit<T>(out result);
             result = default!;
-	        return false;
-	    }}
+            return false;
+        }}
 
+        // Generate TryNewOrDefault for default T
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-	    public static bool TryNewOrDefault<
-#if NET5_0_OR_GREATER
-{options.DynamicallyAccessedMembers(0)}
-#endif
-T>(out T result)
-	    {{
-            if({options.GlobalNSDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.IsValidName})
+        public static bool TryNewOrDefault<T>(out T result)
+        {{
+            if ({options.GlobalNsDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.IsValidName})
             {{
-#if NETFRAMEWORK
-		        result = {options.GlobalNSDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.IsValueTypeTName}
-#else
-    		    result = typeof(T).IsValueType
-#endif
-                    ? default(T)! // This will never be null since T is a ValueType
-                    : FastNew<T>.CompiledDelegate();
-                    return true;
+                result = typeof(T).IsValueType
+                    ? default(T)!
+                    : {options.GlobalNsDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.CompiledDelegateName}();
+                return true;
             }}
-	        //Unsafe.SkipInit<T>(out result);
             result = default!;
-	        return false;
-	    }}");
+            return false;
+        }}");
 
+        // Generate TryCreateInstance with parameters
         for (int parameterIndex = 1; parameterIndex <= options.MaxParameterCount; parameterIndex++)
         {
             builder.Indent(2);
@@ -72,49 +58,45 @@ T>(out T result)
             builder.Indent(2);
             builder.Append("public static bool TryCreateInstance");
             builder.DeclareGenericMember(parameterIndex);
-            #region MyRegion
             builder.Append('(');
+
             for (int i = 0; i < parameterIndex; i++)
             {
+                if (i > 0) builder.Append(", ");
                 builder.AppendGenericArgumentName(i);
                 builder.Append(' ');
                 builder.AppendGenericMethodArgumentName(i);
-                builder.Append(',', ' ');
             }
-            builder.AppendLine($"out T result)");
+            builder.AppendLine(", out T result)");
             builder.StartBlock(2);
 
             builder.Indent(3);
-            builder.Append($"if ({options.GlobalNSDot()}{FastNewCoreGenerator.ClassName}");
+            builder.Append($"if ({options.GlobalNsDot()}{FastNewCoreGenerator.ClassName}");
             builder.UseGenericMember(parameterIndex);
             builder.AppendLine($".{FastNewCoreGenerator.IsValidName})");
 
             builder.StartBlock(3);
             builder.Indent(4);
-            builder.Append($"result = {options.GlobalNSDot()}{FastNewCoreGenerator.ClassName}");
+            builder.Append($"result = {options.GlobalNsDot()}{FastNewCoreGenerator.ClassName}");
             builder.UseGenericMember(parameterIndex);
             builder.Append($".{FastNewCoreGenerator.CompiledDelegateName}(");
+
             for (int i = 0; i < parameterIndex; i++)
             {
-                if (i != 0)
-                    builder.Append(',', ' ');
+                if (i > 0) builder.Append(", ");
                 builder.AppendGenericMethodArgumentName(i);
             }
-            builder.Append(')', ';');
+            builder.Append(");");
             builder.AppendLine();
             builder.Indent(4);
             builder.AppendLine("return true;");
             builder.EndBlock(3);
 
             builder.Indent(3);
-            //builder.AppendLine("Unsafe.SkipInit(out result);");
-            builder.Append("result = default!;");
+            builder.AppendLine("result = default!;");
             builder.Indent(3);
             builder.AppendLine("return false;");
             builder.EndBlock(2);
-
-            #endregion
-            builder.PrettyNewLine();
         }
 
         builder.EndBlock(1);

@@ -30,23 +30,18 @@ public class FastCreateInstanceGenerator : CodeGenerator<FastCreateInstanceGener
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 	    public static T CreateInstance<
-#if NET5_0_OR_GREATER
 {options.DynamicallyAccessedMembers(0)}
-#endif
 T>()
 	    {{
-#if NETFRAMEWORK
-            return {options.GlobalNSDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.CompiledDelegateName}();
-#else
 		    return typeof(T).IsValueType
                 ? System.Activator.CreateInstance<T>() // This will be optimized by JIT
 
-    #if {ClrAllocatorGenerator.ppEnabled}
-                : ({options.GlobalNSDot()}{ClrAllocatorGenerator.ClassName}<T>.IsSupported
-                    ? {options.GlobalNSDot()}{ClrAllocatorGenerator.ClassName}<T>.CreateInstance()
-                    : {options.GlobalNSDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.CompiledDelegateName}());
+    #if {ClrAllocatorGenerator.PpEnabled}
+                : ({options.GlobalNsDot()}{ClrAllocatorGenerator.ClassName}<T>.IsSupported
+                    ? {options.GlobalNsDot()}{ClrAllocatorGenerator.ClassName}<T>.CreateInstance()
+                    : {options.GlobalNsDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.CompiledDelegateName}());
     #else
-                : {options.GlobalNSDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.CompiledDelegateName}();
+                : {options.GlobalNsDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.CompiledDelegateName}();
     #endif
 
 #endif
@@ -64,16 +59,10 @@ T>()
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 	    public static T NewOrDefault<
-#if NET5_0_OR_GREATER
 {options.DynamicallyAccessedMembers(0)}
-#endif
 T>()
 	    {{
-#if NETFRAMEWORK
-		    return {options.GlobalNSDot()}{FastNewCoreGenerator.ClassName}<T>.{FastNewCoreGenerator.IsValueTypeTName}
-#else
 		    return typeof(T).IsValueType
-#endif
                 ? default(T)! // This will never be null since T is a ValueType
                 : FastNew<T>.CompiledDelegate();
 	    }}");

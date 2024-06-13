@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace FastGenericNew.SourceGenerator.CodeGenerators;
+﻿namespace FastGenericNew.SourceGenerator.CodeGenerators;
 
 public class GenerationInfoGenerator : CodeGenerator<GenerationInfoGenerator>
 {
@@ -16,7 +14,7 @@ public class GenerationInfoGenerator : CodeGenerator<GenerationInfoGenerator>
         builder.AppendLine();
         builder.AppendLine("  Environment:");
         builder.AppendLine();
-        builder.AppendLine("    Version = " + Assembly.GetCallingAssembly().GetName().Version.ToString());
+        builder.AppendLine("    Version = " + Assembly.GetCallingAssembly().GetName().Version);
         /*
         builder.AppendLine("    Runtime = " + RuntimeInformation.FrameworkDescription);
         builder.AppendLine("    System = " + RuntimeInformation.OSDescription);
@@ -60,7 +58,7 @@ public class GenerationInfoGenerator : CodeGenerator<GenerationInfoGenerator>
 
         foreach (var property in typeof(GeneratorOptions).GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
-            string name = SourceGeneratorExtensions.prefix + property.Name;
+            string name = SourceGeneratorExtensions.Prefix + property.Name;
             builder.Append("    ");
 
             builder.Append('<');

@@ -17,8 +17,6 @@ internal static class AnalyzerHelper
                     case "bool" when typeof(T) == typeof(bool) && typedConstant.Value != null:
                         result = (T)typedConstant.Value!;
                         return true;
-                    default:
-                        break;
                 }
                 return false;
             }

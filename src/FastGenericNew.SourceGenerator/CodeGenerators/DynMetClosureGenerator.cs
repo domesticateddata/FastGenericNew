@@ -19,9 +19,9 @@ public class DynMetClosureGenerator : CodeGenerator<TypeNewGenerator>
     [EditorBrowsable(EditorBrowsableState.Never)]
     internal sealed partial class {ClassName}
     {{
-        public static readonly Type[] {InstanceOnlyArrayName} = new Type[] {{ typeof({options.GlobalNSDot()}{ClassName}) }};
+        public static readonly Type[] {InstanceOnlyArrayName} = new Type[] {{ typeof({options.GlobalNsDot()}{ClassName}) }};
 
-        public static readonly {options.GlobalNSDot()}{ClassName} {InstanceName} = new {options.GlobalNSDot()}{ClassName}();
+        public static readonly {options.GlobalNsDot()}{ClassName} {InstanceName} = new {options.GlobalNsDot()}{ClassName}();
     }}");
         builder.EndNamespace();
         return builder.BuildAndDispose(this);

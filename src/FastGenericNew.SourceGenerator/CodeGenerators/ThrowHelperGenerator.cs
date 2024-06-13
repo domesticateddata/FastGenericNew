@@ -19,11 +19,11 @@ public class ThrowHelperGenerator : CodeGenerator<ThrowHelperGenerator>
     {{
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.NoInlining | global::System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
 #if NET5_0_OR_GREATER
-        [global::System.Diagnostics.CodeAnalysis.DynamicDependencyAttribute(""SmartThrowImpl``1()"", typeof({options.GlobalNSDot()}{ClassName}))]
+        [global::System.Diagnostics.CodeAnalysis.DynamicDependencyAttribute(""SmartThrowImpl``1()"", typeof({options.GlobalNsDot()}{ClassName}))]
 #endif
 ");
         builder.AppendLine(@$"
-        public static global::System.Reflection.MethodInfo GetSmartThrow<T>() => typeof({options.GlobalNSDot()}ThrowHelper).GetMethod(""SmartThrowImpl"", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)!.MakeGenericMethod(typeof(T));
+        public static global::System.Reflection.MethodInfo GetSmartThrow<T>() => typeof({options.GlobalNsDot()}ThrowHelper).GetMethod(""SmartThrowImpl"", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)!.MakeGenericMethod(typeof(T));
 
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.NoInlining | global::System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
         public static T SmartThrowImpl<T>()

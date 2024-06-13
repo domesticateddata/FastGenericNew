@@ -2,11 +2,11 @@
 
 internal static class SourceGeneratorExtensions
 {
-    public const string prefix = "FastNew_";
+    public const string Prefix = "FastNew_";
 
     public static bool TryGetProperty(this AnalyzerConfigOptions options, string name, out string? value)
     {
-        return options.TryGetValue($"build_property.{prefix}{name}", out value);
+        return options.TryGetValue($"build_property.{Prefix}{name}", out value);
     }
 
     public static TValue GetOrDefault<TValue>(this AnalyzerConfigOptions? options, string name, TValue defaultValue)

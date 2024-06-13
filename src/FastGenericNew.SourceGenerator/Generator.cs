@@ -5,7 +5,7 @@ public unsafe class Generator : IIncrementalGenerator
 {
     private static GeneratorOptions _lastOptions;
 
-    private static readonly nint[] generatorPointers = Assembly
+    private static readonly nint[] GeneratorPointers = Assembly
         .GetCallingAssembly()
         .GetTypes()
         .Where(static x => !x.IsAbstract && typeof(CodeGenerator).IsAssignableFrom(x))
@@ -18,7 +18,7 @@ public unsafe class Generator : IIncrementalGenerator
             )
         .ToArray();
 
-    private static readonly object _lock = new();
+    private static readonly object Lock = new();
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -34,20 +34,20 @@ public unsafe class Generator : IIncrementalGenerator
 
             if (newOptions.MultiThreadedGeneration)
             {
-                Parallel.ForEach(generatorPointers, nativePointer =>
+                Parallel.ForEach(GeneratorPointers, nativePointer =>
                 {
                     var function = (delegate* managed<in GeneratorOptions, in GeneratorOptions, CodeGenerationResult>)nativePointer;
                     var result = function(in _lastOptions, in newOptions);
                     if (result.SourceText != null)
                     {
-                        lock (_lock)
+                        lock (Lock)
                         {
                             sourceContext.AddSource(result.Filename, result.SourceText);
                         }
                     }
                     if (result.Diagnostics != null)
                     {
-                        lock (_lock)
+                        lock (Lock)
                         {
                             foreach (Diagnostic diag in result.Diagnostics)
                             {
@@ -59,7 +59,7 @@ public unsafe class Generator : IIncrementalGenerator
             }
             else
             {
-                foreach (var nativePointer in generatorPointers)
+                foreach (var nativePointer in GeneratorPointers)
                 {
                     var function = (delegate* managed<in GeneratorOptions, in GeneratorOptions, CodeGenerationResult>)nativePointer;
                     var result = function(in _lastOptions, in newOptions);

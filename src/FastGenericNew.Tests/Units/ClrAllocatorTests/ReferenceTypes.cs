@@ -1,5 +1,6 @@
-﻿#if AllowUnsafeImplementation && NET6_0_OR_GREATER
+﻿#if AllowUnsafeImplementation && NET8_0_OR_GREATER
 using System.Threading.Tasks;
+using FluentAssertions;
 
 namespace FastGenericNew.Tests.Units.ClrAllocatorTests;
 
@@ -10,32 +11,36 @@ public class ReferenceTypes
     {
         var expected = Activator.CreateInstance<object>();
         var actual = ClrAllocator<object>.CreateInstance();
-        Assert.IsTrue(expected.GetType() == actual.GetType());
+
+        actual.GetType().Should().Be(expected.GetType(), "the actual object should have the same type as the expected object.");
     }
 
-    [TestCaseSourceGeneric(typeof(TestData), nameof(TestData.CommonReferenceTypesPL))]
+    [TestCaseSourceGeneric(typeof(TestData), nameof(TestData.CommonReferenceTypesPl))]
     [Parallelizable(ParallelScope.All)]
     public void CommonTypes<T>()
     {
         var expected = Activator.CreateInstance<T>();
         var actual = ClrAllocator<T>.CreateInstance();
-        Assert.AreEqual(expected, actual);
+
+        actual.Should().BeEquivalentTo(expected, "the actual object should be equivalent to the expected object of type {0}.", typeof(T).Name);
     }
 
-    [TestCaseSourceGeneric(typeof(TestData), nameof(TestData.CommonReferenceTypesPL))]
+    [TestCaseSourceGeneric(typeof(TestData), nameof(TestData.CommonReferenceTypesPl))]
     [Parallelizable(ParallelScope.All)]
     public void ParallelNew<T>()
     {
         const int count = 512;
         T[] array = new T[count];
-        Parallel.For(0, count, new ParallelOptions() { MaxDegreeOfParallelism = count }, i =>
+
+        Parallel.For(0, count, new ParallelOptions { MaxDegreeOfParallelism = count }, i =>
         {
             array[i] = ClrAllocator<T>.CreateInstance();
         });
+
         var expected = Activator.CreateInstance<T>();
         foreach (var item in array)
         {
-            Assert.AreEqual(expected, item);
+            item.Should().BeEquivalentTo(expected, "each item in the array should be equivalent to the expected object of type {0}.", typeof(T).Name);
         }
     }
 }

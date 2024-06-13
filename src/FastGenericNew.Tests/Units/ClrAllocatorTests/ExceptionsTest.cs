@@ -3,7 +3,7 @@ namespace FastGenericNew.Tests.Units.ClrAllocatorTests;
 
 public class ExceptionsTest
 {
-    [Test()]
+    [Test]
     public void ExceptionInterface()
     {
         try
@@ -13,11 +13,11 @@ public class ExceptionsTest
         }
         catch (MissingMethodException e)
         {
-            Assert.IsTrue(e.Message.StartsWith("Cannot create an instance of an interface"));
+            Assert.That(e.Message, Does.StartWith("Cannot create an instance of an interface"));
         }
     }
 
-    [Test()]
+    [Test]
     public void ExceptionAbstract()
     {
         try
@@ -27,12 +27,12 @@ public class ExceptionsTest
         }
         catch (MissingMethodException e)
         {
-            Assert.IsTrue(e.Message.StartsWith("Cannot create an abstract class"));
+            Assert.That(e.Message, Does.StartWith("Cannot create an abstract class"));
         }
     }
 
-    [Test()]
-    public void ExceptionPLString()
+    [Test]
+    public void ExceptionPlString()
     {
         try
         {
@@ -46,7 +46,7 @@ public class ExceptionsTest
         }
     }
 
-    [Test()]
+    [Test]
     public void ExceptionNotFoundNoParameter()
     {
         try
@@ -56,7 +56,7 @@ public class ExceptionsTest
         }
         catch (Exception e)
         {
-            Assert.IsTrue(e.Message.StartsWith("No match constructor found in type"));
+            Assert.That(e.Message, Does.StartWith("No match constructor found in type"));
         }
     }
 }

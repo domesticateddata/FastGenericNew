@@ -4,7 +4,7 @@ namespace FastGenericNew.SourceGenerator.Utilities;
 
 partial struct CodeBuilder
 {
-	internal const string Const_PreProcessDefinePrefix = "FastNewPX_";
+	internal const string ConstPreProcessDefinePrefix = "FastNewPX_";
 
 
 	public void Pre_AutoDefine(bool value, [CallerArgumentExpression("value")] string? expression = null)
@@ -13,11 +13,11 @@ partial struct CodeBuilder
 		Debug.Assert(expression != null);
 		if (LastChar != '\n')
 			AppendLine();
-		Append($"#define {Const_PreProcessDefinePrefix}");
+		Append($"#define {ConstPreProcessDefinePrefix}");
 		AppendLine(expression.AsSpan().Trim());
 	}
 
-	public void Pre_IfDefined(string definition) => Pre_If($"{Const_PreProcessDefinePrefix}{definition}");
+	public void Pre_IfDefined(string definition) => Pre_If($"{ConstPreProcessDefinePrefix}{definition}");
 
 	public void Pre_If(string condition)
 	{

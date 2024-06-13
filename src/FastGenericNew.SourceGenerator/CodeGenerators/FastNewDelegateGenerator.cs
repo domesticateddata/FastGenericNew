@@ -10,7 +10,7 @@ public class FastNewDelegateGenerator : CodeGenerator<FastNewDelegateGenerator>
 
     public override CodeGenerationResult Generate(in GeneratorOptions options)
     {
-        if (!options.ForceFastNewDelegate && options.MaxParameterCount <= 16)
+        if (options is { ForceFastNewDelegate: false, MaxParameterCount: <= 16 })
             return CodeGenerationResult.Empty;
 
         CodeBuilder builder = new(options.ForceFastNewDelegate ? 20480 : 1024 * options.MaxParameterCount - 16, in options);

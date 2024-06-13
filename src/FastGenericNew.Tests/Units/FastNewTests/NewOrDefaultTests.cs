@@ -1,4 +1,6 @@
-﻿namespace FastGenericNew.Tests.Units.FastNewTests;
+﻿using FluentAssertions;
+
+namespace FastGenericNew.Tests.Units.FastNewTests;
 
 public class NewOrDefaultTests
 {
@@ -6,10 +8,12 @@ public class NewOrDefaultTests
     [Parallelizable(ParallelScope.All)]
     public void ValueTypeDefault<T>()
     {
-        Assert.True(typeof(T).IsValueType, "T must be Value Type");
+        // Verify that T is a value type
+        typeof(T).IsValueType.Should().BeTrue("because T must be a value type");
 
+        // Existing comparison logic
         var expected = default(T);
         var actual = FastNew.NewOrDefault<T>();
-        Assert.AreEqual(expected, actual);
+        expected.Should().Be(actual);
     }
 }

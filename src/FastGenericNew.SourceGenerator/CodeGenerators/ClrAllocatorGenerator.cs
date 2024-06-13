@@ -6,7 +6,7 @@ internal class ClrAllocatorGenerator : CodeGenerator<ClrAllocatorGenerator>
 
     internal const string ClassName = "ClrAllocator";
 
-    internal const string ppEnabled = $"NET6_0_OR_GREATER && {CodeBuilder.Const_PreProcessDefinePrefix}{nameof(GeneratorOptions.AllowUnsafeImplementation)}";
+    internal const string PpEnabled = $"NET6_0_OR_GREATER && {CodeBuilder.ConstPreProcessDefinePrefix}{nameof(GeneratorOptions.AllowUnsafeImplementation)}";
 
     public override CodeGenerationResult Generate(in GeneratorOptions options)
     {
@@ -14,7 +14,7 @@ internal class ClrAllocatorGenerator : CodeGenerator<ClrAllocatorGenerator>
         CodeBuilder builder = new(6144, in options);
         builder.WriteFileHeader();
 
-        builder.Pre_If(ppEnabled);
+        builder.Pre_If(PpEnabled);
 
         builder.StartNamespace();
 
@@ -56,7 +56,7 @@ internal class ClrAllocatorGenerator : CodeGenerator<ClrAllocatorGenerator>
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.NoInlining | global::System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
 		public static object ThrowNotSupported(void* _) => throw new global::System.NotSupportedException();
         [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.NoInlining | global::System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
-        public static object SmartThrow<T>(void* _) => (object){{options.GlobalNSDot()}}{{ThrowHelperGenerator.ClassName}}.{{ThrowHelperGenerator.SmartThrowName}}<T>()!;
+        public static object SmartThrow<T>(void* _) => (object){{options.GlobalNsDot()}}{{ThrowHelperGenerator.ClassName}}.{{ThrowHelperGenerator.SmartThrowName}}<T>()!;
     }
 
     [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]
@@ -76,13 +76,13 @@ internal class ClrAllocatorGenerator : CodeGenerator<ClrAllocatorGenerator>
 
         static ClrAllocator()
         {
-            if (!{{options.GlobalNSDot()}}{{ClassName}}.IsSupported) goto MarkUnsupported;
+            if (!{{options.GlobalNsDot()}}{{ClassName}}.IsSupported) goto MarkUnsupported;
             var type = typeof(T);
 
             int _ctorIsPublic = default;
             try
             {
-                ((delegate*<void*, ref delegate*<void*, object>, ref void*, ref delegate*<object, void>, int*, void>){{options.GlobalNSDot()}}{{ClassName}}.GetActivationInfo)
+                ((delegate*<void*, ref delegate*<void*, object>, ref void*, ref delegate*<object, void>, int*, void>){{options.GlobalNsDot()}}{{ClassName}}.GetActivationInfo)
                     (Unsafe.AsPointer(ref type), ref _pfnAllocator, ref _allocatorFirstArg, ref _pfnCtor, &_ctorIsPublic);
             }
             catch
@@ -111,7 +111,7 @@ internal class ClrAllocatorGenerator : CodeGenerator<ClrAllocatorGenerator>
             if (_pfnCtor is null)
             {
                 if(type.IsValueType)
-                    _pfnCtor = &{{options.GlobalNSDot()}}{{ClassName}}.CtorNoopStub;
+                    _pfnCtor = &{{options.GlobalNsDot()}}{{ClassName}}.CtorNoopStub;
                 else
                     goto GoSmartThrow;
             }
@@ -120,12 +120,12 @@ internal class ClrAllocatorGenerator : CodeGenerator<ClrAllocatorGenerator>
             return;
 
 GoSmartThrow:
-            _pfnAllocator = &{{options.GlobalNSDot()}}{{ClassName}}.SmartThrow<T>;
+            _pfnAllocator = &{{options.GlobalNsDot()}}{{ClassName}}.SmartThrow<T>;
             IsSupported = true; // read the comment of IsSupported
             return;
 
 MarkUnsupported:
-            _pfnAllocator = &{{options.GlobalNSDot()}}{{ClassName}}.ThrowNotSupported;
+            _pfnAllocator = &{{options.GlobalNsDot()}}{{ClassName}}.ThrowNotSupported;
             IsSupported = false;
             return;
         }

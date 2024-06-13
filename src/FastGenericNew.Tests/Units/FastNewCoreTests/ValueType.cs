@@ -1,4 +1,6 @@
-﻿namespace FastGenericNew.Tests.Units.FastNewCoreTests;
+﻿using FluentAssertions;
+
+namespace FastGenericNew.Tests.Units.FastNewCoreTests;
 
 public class ValueTypes
 {
@@ -8,6 +10,6 @@ public class ValueTypes
     {
         var expected = Activator.CreateInstance<T>();
         var actual = FastNew<T>.CompiledDelegate();
-        Assert.AreEqual(expected, actual);
+        expected.Should().Be(actual);
     }
 }

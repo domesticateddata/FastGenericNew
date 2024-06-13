@@ -1,10 +1,10 @@
 ﻿namespace FastGenericNew.SourceGenerator.Utilities;
 
-internal unsafe ref partial struct CodeBuilder
+internal ref partial struct CodeBuilder
 {
-    private static readonly ArrayPool<char> pool = ArrayPool<char>.Shared;
+    private static readonly ArrayPool<char> Pool = ArrayPool<char>.Shared;
 
-    public List<Diagnostic>? Diagnostics { readonly get; private set; }
+    public List<Diagnostic>? Diagnostics { get; private set; }
 
     private char[] _buffer;
 
@@ -12,7 +12,7 @@ internal unsafe ref partial struct CodeBuilder
 
     public readonly Span<char> AvailableBuffer => _buffer.AsSpan(_length);
 
-    public readonly GeneratorOptions Options { get; }
+    public GeneratorOptions Options { get; }
 
     public readonly int Length => _length;
 
@@ -22,7 +22,7 @@ internal unsafe ref partial struct CodeBuilder
 
     public CodeBuilder(int capacity, in GeneratorOptions options)
     {
-        _buffer = pool.Rent(capacity);
+        _buffer = Pool.Rent(capacity);
         _length = 0;
         Diagnostics = null;
         Options = options;
@@ -97,7 +97,7 @@ internal unsafe ref partial struct CodeBuilder
 
     public void XmlDoc(int indent, string value)
     {
-        foreach (var line in value.AsSpan().Trim().Split('\n', false))
+        foreach (var line in value.AsSpan().Trim().Split('\n'))
         {
             Indent(indent);
             AppendLine(line.TrimStart());
@@ -186,7 +186,7 @@ internal unsafe ref partial struct CodeBuilder
 
     public void AddDiagnostic(Diagnostic diagnostic)
     {
-        if (Diagnostics is null) Diagnostics = new List<Diagnostic>();
+        Diagnostics ??= [];
         Diagnostics.Add(diagnostic);
     }
 
@@ -194,9 +194,9 @@ internal unsafe ref partial struct CodeBuilder
     public void Grow()
     {
         var oldBuffer = _buffer;
-        _buffer = pool.Rent((_buffer.Length + 1) * 2);
+        _buffer = Pool.Rent((_buffer.Length + 1) * 2);
         oldBuffer.CopyTo(_buffer, 0);
-        pool.Return(oldBuffer);
+        Pool.Return(oldBuffer);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -204,9 +204,9 @@ internal unsafe ref partial struct CodeBuilder
     {
         var oldBuffer = _buffer;
         int newSize = Math.Max((_buffer.Length + 1) * 2, _length + minimalGrowSize);
-        _buffer = pool.Rent(newSize);
+        _buffer = Pool.Rent(newSize);
         oldBuffer.CopyTo(_buffer, 0);
-        pool.Return(oldBuffer);
+        Pool.Return(oldBuffer);
     }
 
     public readonly CodeGenerationResult Build(CodeGenerator generator)
@@ -233,6 +233,6 @@ internal unsafe ref partial struct CodeBuilder
 
     public void Dispose()
     {
-        pool.Return(_buffer);
+        Pool.Return(_buffer);
     }
 }

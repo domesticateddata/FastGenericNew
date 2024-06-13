@@ -1,4 +1,6 @@
-﻿#if AllowUnsafeImplementation && NET6_0_OR_GREATER
+﻿using FluentAssertions;
+
+#if AllowUnsafeImplementation && NET6_0_OR_GREATER
 namespace FastGenericNew.Tests.Units.ClrAllocatorTests;
 
 public class ValueTypes
@@ -9,7 +11,7 @@ public class ValueTypes
     {
         var expected = Activator.CreateInstance<T>();
         var actual = FastNew<T>.CompiledDelegate();
-        Assert.AreEqual(expected, actual);
+        expected.Should().Be(actual);
     }
 }
 #endif

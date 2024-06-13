@@ -1,74 +1,51 @@
-﻿namespace FastGenericNew.Tests.Units.FastNewCoreTests;
+﻿using FluentAssertions;
+
+namespace FastGenericNew.Tests.Units.FastNewCoreTests;
 
 public class ExceptionsTest
 {
-    [Test()]
+    [Test]
     public void ExceptionInterface()
     {
-        try
-        {
-            FastNew<IEnumerable>.CompiledDelegate();
-            Assert.Fail("The expected exception is not thrown.");
-        }
-        catch (MissingMethodException e)
-        {
-            Assert.IsTrue(e.Message.StartsWith("Cannot create an instance of an interface"));
-        }
+        // Act & Assert
+        Action action = () => FastNew<IEnumerable>.CompiledDelegate();
+        action.Should().Throw<MissingMethodException>("because creating an instance of an interface is not allowed")
+            .WithMessage("Cannot create an instance of an interface*");
     }
 
-    [Test()]
+    [Test]
     public void ExceptionAbstract()
     {
-        try
-        {
-            FastNew<Stream>.CompiledDelegate();
-            Assert.Fail("The expected exception is not thrown.");
-        }
-        catch (MissingMethodException e)
-        {
-            Assert.IsTrue(e.Message.StartsWith("Cannot create an abstract class"));
-        }
+        // Act & Assert
+        Action action = () => FastNew<Stream>.CompiledDelegate();
+        action.Should().Throw<MissingMethodException>("because creating an instance of an abstract class is not allowed")
+            .WithMessage("Cannot create an abstract class*");
     }
 
-    [Test()]
-    public void ExceptionPLString()
+    [Test]
+    public void ExceptionPlString()
     {
-        try
-        {
-            FastNew<string>.CompiledDelegate();
-            Assert.Fail("The expected exception is not thrown.");
-        }
-        catch (MissingMethodException e)
-        {
-            Assert.IsTrue(e.Message.StartsWith("No match constructor found in type"));
-        }
+        // Act & Assert
+        Action action = () => FastNew<string>.CompiledDelegate();
+        action.Should().Throw<MissingMethodException>("because no matching constructor was found")
+            .WithMessage("No match constructor found in type*");
     }
 
-    [Test()]
+    [Test]
     public void ExceptionNotFoundNoParameter()
     {
-        try
-        {
-            FastNew<DemoClassNoParamlessCtor>.CompiledDelegate();
-            Assert.Fail("The expected exception is not thrown.");
-        }
-        catch (MissingMethodException e)
-        {
-            Assert.IsTrue(e.Message.StartsWith("No match constructor found in type"));
-        }
+        // Act & Assert
+        Action action = () => FastNew<DemoClassNoParamlessCtor>.CompiledDelegate();
+        action.Should().Throw<MissingMethodException>("because no parameterless constructor was found")
+            .WithMessage("No match constructor found in type*");
     }
 
-    [Test()]
+    [Test]
     public void ExceptionNotFoundWithParameter()
     {
-        try
-        {
-            FastNew<DemoClass, DBNull>.CompiledDelegate(DBNull.Value);
-            Assert.Fail("The expected exception is not thrown.");
-        }
-        catch (MissingMethodException e)
-        {
-            Assert.IsTrue(e.Message.StartsWith("No match constructor found in type"));
-        }
+        // Act & Assert
+        Action action = () => FastNew<DemoClass, DBNull>.CompiledDelegate(DBNull.Value);
+        action.Should().Throw<MissingMethodException>("because no matching constructor with parameters was found")
+            .WithMessage("No match constructor found in type*");
     }
 }
